@@ -4,9 +4,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.ws.rs.GET;
@@ -122,12 +122,22 @@ public class DistanciaResource {
 				}
 			}
 		}
-		SortedMap<Integer,Cidade> ordem = new TreeMap<Integer, Cidade>(dist);
-		
-		System.out.println(ordem.toString());
+		Map<Integer,Cidade> ordem = new TreeMap<Integer, Cidade>(dist);
+		List ordenada = new ArrayList<Integer>();
+		Iterator it = ordem.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry pairs = (Map.Entry)it.next();
+	        System.out.println(pairs.getKey() + " = " + pairs.getValue());
+	        ordenada.add(pairs.getKey());
+	        it.remove(); 
+	    }
+		 
 		cp.setOrigem(local.getNome());
-		cp.setProxima(ordem.get(ordem.firstKey()).getNome());
-		cp.setDist(ordem.firstKey());
+		cp.setProxima(dist.get(ordenada.get(0)).getNome());
+		cp.setDist(ordenada.get(0).toString());
+		cp.setProxima2(dist.get(ordenada.get(1)).getNome());
+		cp.setDist2(ordenada.get(1).toString());
+		System.out.println("OK");
 		
 		return cp;
 	}
