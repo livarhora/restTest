@@ -88,6 +88,9 @@ public class DistanciaResource {
 		return document;
 	}
 
+	/**
+	 * Ex: http://localhost:8080/koinTest/REST/lista/next/1
+	 */
 	@GET
 	@Path("next/{cidade}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -137,7 +140,6 @@ public class DistanciaResource {
 		cp.setDist(ordenada.get(0).toString());
 		cp.setProxima2(dist.get(ordenada.get(1)).getNome());
 		cp.setDist2(ordenada.get(1).toString());
-		System.out.println("OK");
 		
 		return cp;
 	}
