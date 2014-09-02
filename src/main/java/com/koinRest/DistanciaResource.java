@@ -83,6 +83,7 @@ public class DistanciaResource {
 		return elementos;
 	}
 
+			
 	public Document getDocumento(URL url) throws DocumentException {
 		SAXReader reader = new SAXReader();
 		Document document = reader.read(url);
@@ -106,6 +107,7 @@ public class DistanciaResource {
 		cidades = new CidadeDAO().buscarTodas();
 
 		for (Cidade cidade : cidades) {
+				
 			if (!local.equals(cidade)) {
 				try {
 					url = new URL(
