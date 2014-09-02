@@ -2,6 +2,7 @@ package com.koinRest;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -96,52 +97,60 @@ public class DistanciaResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	public CidadeProxima getIt(@PathParam("cidade") int id) {
 		List<Cidade> cidades = new ArrayList<Cidade>();
-		Map<Integer,Cidade> dist = new HashMap<Integer, Cidade>();
+		Map<Integer, Cidade> dist = new HashMap<Integer, Cidade>();
 		CidadeProxima cp = new CidadeProxima();
 		Document document;
 		List<String> lista;
 		URL url;
 		Cidade local = new CidadeDAO().buscarCidade(id);
 		cidades = new CidadeDAO().buscarTodas();
-		
+
 		for (Cidade cidade : cidades) {
 			if (!local.equals(cidade)) {
 				try {
 					url = new URL(
 							"http://maps.googleapis.com/maps/api/directions/xml?sensor=true&"
-									+ "origin=" + local.getLatitude() + ","+ local.getLongitude()
-									+ "&destination="+ cidade.getLatitude() + ","+ cidade.getLongitude()
-									+ "&sensor=false");
-					
+									+ "origin=" + local.getLatitude() + ","
+									+ local.getLongitude() + "&destination="
+									+ cidade.getLatitude() + ","
+									+ cidade.getLongitude() + "&sensor=false");
+
 					document = getDocumento(url);
 					lista = analisaXml(document);
-					String valor = lista.get(0).replace(",", ".").replace(" km", "").replace(" m", "");
-					String km = lista.get(0).replace(",", "").replace(".", "").replace(" km", "").replace(" m", "");
-					System.out.println(cidade.getNome()+": "+valor+" km");
-					dist.put(Integer.valueOf(km),cidade);
-					
+					String valor = lista.get(0).replace(" km", "")
+							.replace(" m", "");
+					int distancia;
+					if (valor.indexOf(".") >= 0) {
+						distancia = (int) Math.round(Double.valueOf(valor));
+					} else {
+						distancia = (int) (Double.valueOf(valor.replace(",",
+								".")) * 1000);
+					}
+
+					System.out.println(cidade.getNome() + ": " + distancia	+ " km");
+					dist.put(distancia, cidade);
+
 				} catch (MalformedURLException | DocumentException e) {
 					e.printStackTrace();
 				}
 			}
 		}
-		Map<Integer,Cidade> ordem = new TreeMap<Integer, Cidade>(dist);
+		Map<Integer, Cidade> ordem = new TreeMap<Integer, Cidade>(dist);
 		List ordenada = new ArrayList<Integer>();
 		Iterator it = ordem.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry pairs = (Map.Entry)it.next();
-	        System.out.println(pairs.getKey() + " = " + pairs.getValue());
-	        ordenada.add(pairs.getKey());
-	        it.remove(); 
-	    }
-		 
+		while (it.hasNext()) {
+			Map.Entry pairs = (Map.Entry) it.next();
+			System.out.println(pairs.getKey() + " = " + pairs.getValue());
+			ordenada.add(pairs.getKey());
+			it.remove();
+		}
 		cp.setOrigem(local.getNome());
 		cp.setProxima(dist.get(ordenada.get(0)).getNome());
 		cp.setDist(ordenada.get(0).toString());
 		cp.setProxima2(dist.get(ordenada.get(1)).getNome());
 		cp.setDist2(ordenada.get(1).toString());
-		
+
 		return cp;
 	}
-	
+
 }
